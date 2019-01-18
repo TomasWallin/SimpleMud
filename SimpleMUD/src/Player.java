@@ -24,8 +24,7 @@ public class Player {
 	private Weapon weapon;
 	private ArrayList<Item> inventory = new ArrayList<Item>();
 	
-	public Player(int we, int ns, int mapsize) 
-	{
+	public Player(int we, int ns, int mapsize) {
 		this.we = we;
 		this.ns = ns;
 		MAPSIZE = mapsize;
@@ -35,8 +34,7 @@ public class Player {
 	/**
 	 * @param world: the world in which the player is placed.
 	 */
-	public void placeInWorld(World world)
-	{
+	public void placeInWorld(World world) {
 		this.world = world;
 		this.world.placePlayer(we, ns);
 	}
@@ -48,17 +46,14 @@ public class Player {
 	 * The player must be placed in a world for the method to execute meaningfully.
 	 * @throws IOException
 	 */
-	public void run() throws IOException
-	{
+	public void run() throws IOException {
 		String in_buffer, arg;
 		boolean loop_flag = true;
 		String[] input;
 		int status_flag;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		for(;loop_flag;)
-		{
-			if(hp <= 0)
-			{
+		for(;loop_flag;) {
+			if(hp <= 0) {
 				System.out.println("You're dead");
 				break;
 			}
@@ -69,10 +64,8 @@ public class Player {
 			if(input.length >= 2) arg = input[1];
 			if(input.length >= 3) arg = arg.concat(" "+input[2]);
 			status_flag = 0;
-			if(in_combat)
-			{
-				switch(input[0])
-				{
+			if(in_combat){
+				switch(input[0]) {
 				case "n":
 				case "north":
 				case "s":
@@ -140,59 +133,44 @@ public class Player {
 					System.out.println("That is not a valid command");
 					break;
 				}
-			} 
-			else
-			{
-				switch(input[0])
-			{
+			} else {
+				switch(input[0]) {
 				case "help":
 					help();
 					break;
 				case "n":
 				case "north":
 					status_flag = world.enter(we,wrap(ns+1));
-					if(status_flag != 0)
-					{
+					if(status_flag != 0) {
 						ns = wrap(ns+1);
-					} 
-					else 
-					{
+					} else {
 						System.out.println("You can't go there");
 					}
 					break;
 				case "s":
 				case "south":
 					status_flag = world.enter(we,wrap(ns-1));
-					if(status_flag != 0)
-					{
+					if(status_flag != 0) {
 						ns = wrap(ns-1);
-					}
-					else
-					{
+					} else {
 						System.out.println("You can't go there");
 					}
 					break;
 				case "w":
 				case "west":
 					status_flag = world.enter(wrap(we-1),ns);
-					if(status_flag != 0)
-					{
+					if(status_flag != 0) {
 						we = wrap(we-1);
-					}
-					else 
-					{
+					} else {
 						System.out.println("You can't go there");
 					}
 					break;
 				case "e":
 				case "east":
 					status_flag = world.enter(wrap(we+1),ns);
-					if(status_flag != 0)
-					{
+					if(status_flag != 0) {
 						we = wrap(we+1);
-					} 
-					else
-					{
+					} else {
 						System.out.println("You can't go there");
 					}
 					break;
@@ -243,7 +221,6 @@ public class Player {
 					System.out.println("That is not a valid command");
 					break;
 					}
-			
 			}
 			hp_max = 100 + xp/2;
 			if(status_flag == 2) in_combat = true; 
@@ -253,18 +230,13 @@ public class Player {
 	/**
 	 * Prints a list of inventory contents to the console.
 	 */
-	private void showInventory() 
-	{
+	private void showInventory() {
 		Iterator<Item> iterator = inventory.iterator();
-		if(iterator.hasNext()) 
-		{
-			for(;iterator.hasNext();) 
-			{
+		if(iterator.hasNext()) {
+			for(;iterator.hasNext();) {
 				System.out.println(iterator.next().getName());
 			} 
-		} 
-		else 
-		{
+		} else {
 			System.out.println("Your Inventory is empty");
 		}
 	}
@@ -273,24 +245,17 @@ public class Player {
 	 * Tries to remove an item from the room you're currently in and place it in your inventory.
 	 * @param item: is a String with the name of the item you wish to take.
 	 */
-	private void takeItem(String name) 
-	{
-		if(world.itemExist(we,ns,name)) 
-		{
-			if(!world.getItem(we,ns,name).getHeavy()) 
-			{
+	private void takeItem(String name) {
+		if(world.itemExist(we,ns,name)) {
+			if(!world.getItem(we,ns,name).getHeavy()) {
 				Item temp = world.getItem(we,ns,name);
 				System.out.println("You've picked up "+temp.getName());
 				inventory.add(temp);
 				world.deleteItem(we,ns,temp.getID());
-			} 
-			else 
-			{
+			} else {
 				System.out.println(name+" is too heavy");
 			}
-		} 
-		else 
-		{
+		} else {
 			System.out.println("There is no "+name+" in this room");
 		}
 	}
@@ -299,11 +264,9 @@ public class Player {
 	 * Removes an item from your inventory and places it in your current room.
 	 * @param name: is a String with the name of the item you wish to drop.
 	 */
-	private void dropItem(String name) 
-	{
-		if(contains(name)) 
-		{
-			Item temp = itemReference(name);
+	private void dropItem(String name) {
+		if(inInventory(name)) {
+			Item temp = getItemReference(name);
 			world.dropItem(we,ns,temp);
 			deleteItem(temp.getID());
 			System.out.println("You've dropped "+name+" on the floor");
@@ -315,25 +278,19 @@ public class Player {
 	 * Uses an item from your inventory. Contains the code deciding what the items will do.
 	 * @param name: is a String with the name of the item you wish to use.
 	 */
-	private void useItem(String name) 
-	{
-			Item temp = itemReference(name);
-			if(temp == null) 
-			{
-				if(world.itemExist(we,ns,name)) 
-				{
-					if(!world.getItem(we, ns, name).getHeavy())
-					{
+	private void useItem(String name) {
+			Item temp = getItemReference(name);
+			if(temp == null) {
+				if(world.itemExist(we,ns,name)) {
+					if(!world.getItem(we, ns, name).getHeavy()){
 						temp = world.getItem(we,ns,name);
 						inventory.add(temp);
 						world.deleteItem(we,ns,temp.getID());
 					}
 				}
 			}
-			if(temp != null) 
-			{
-				if(name.equalsIgnoreCase("Red Potion")) 
-				{
+			if(temp != null) {
+				if(name.equalsIgnoreCase("Red Potion")) {
 					Potion potion = (Potion)temp;
 					int temp_hp = hp;
 					hp += potion.getHealth();
@@ -341,15 +298,13 @@ public class Player {
 					System.out.println("You've restored "+(hp-temp_hp)+"hp");
 					deleteItem(temp.getID());	
 				}
-				if(name.equalsIgnoreCase("Blue Potion")) 
-				{
+				if(name.equalsIgnoreCase("Blue Potion")) {
 					Potion potion = (Potion)temp;
 					xp += potion.getXP();
 					System.out.println("You've gained "+potion.getXP()+"xp");
 					deleteItem(temp.getID());
 				}
-				if(name.equalsIgnoreCase("Meat")) 
-				{
+				if(name.equalsIgnoreCase("Meat")) {
 					Meat meat = (Meat)temp;
 					int temp_hp = hp;
 					hp += meat.getHealth();
@@ -357,22 +312,20 @@ public class Player {
 					System.out.println("You've restored "+(hp-temp_hp)+"hp");
 					deleteItem(temp.getID());	
 				}
-				if(name.equalsIgnoreCase("Key")) 
-				{
+				if(name.equalsIgnoreCase("Key")) {
 					if(world.getChest(we,ns)) {
 						Item[] loot = world.openChest(we,ns);
 						System.out.println("You've opened a chest"); //make it so that loot is shown.
 						deleteItem(temp.getID());
 						world.lookLoot(we, ns, loot);
-					} else System.out.println("There is no chest in this room");
+					} else {
+						System.out.println("There is no chest in this room");
+					}
 				}
-				if(temp instanceof Equipment) 
-				{
+				if(temp instanceof Equipment) {
 					System.out.println("Try equiping that instead");
 				}
-			} 
-			else 
-			{
+			} else {
 				System.out.println("You don't have "+name+" in your inventory");
 			}
 	}
@@ -381,22 +334,15 @@ public class Player {
 	 * Prints an items in your inventories description.
 	 * @param name: is a String with the name of the item you wish to describe.
 	 */
-	private void investigateItem(String name) 
-	{
-		Item temp = itemReference(name);
-		if(temp != null) 
-		{
+	private void investigateItem(String name) {
+		Item temp = getItemReference(name);
+		if(temp != null) {
 			System.out.println(temp.getDescription());
-		} else if(world.itemExist(we,ns,name)) 
-		{
+		} else if(world.itemExist(we,ns,name)) {
 			System.out.println(world.getItem(we, ns, name).getDescription());
-		} else if(world.existMonster(we,ns) && name.equalsIgnoreCase("monster")) 
-		{
+		} else if(world.existMonster(we,ns) && name.equalsIgnoreCase("monster")) {
 			System.out.println(world.getMonster(we,ns).getDescription());
-		}
-		
-		else
-		{
+		} else {
 			System.out.println("You don't have "+name);
 		}
 	}
@@ -407,19 +353,16 @@ public class Player {
 	 * @param name: is a String with the name of the item you wish to search for.
 	 * @return true if an item with name exists in your inventory, otherwise false.
 	 */
-	private boolean contains(String name) 
-	{
+	private boolean inInventory(String name) {
 		Iterator<Item> iterator = inventory.iterator();
-		boolean flag = false;
-		for(;iterator.hasNext();)
-		{
-			if(iterator.next().getName().equalsIgnoreCase(name)) 
-			{
-				flag = true;
+		boolean result_flag = false;
+		for(;iterator.hasNext();) {
+			if(iterator.next().getName().equalsIgnoreCase(name)) {
+				result_flag = true;
 				break;
 			}
 		}
-		return flag;
+		return result_flag;
 	}
 	
 	
@@ -428,153 +371,112 @@ public class Player {
 	 * @param name: is a String with the name of the item you're trying to retrieve from your inventory.
 	 * @return Item if it exists in your inventory, otherwise null.
 	 */
-	private Item itemReference(String name)
-	{
-		Item ret_item = null;
+	private Item getItemReference(String name) {
+		Item item_reference = null;
 		Item temp;
 		Iterator<Item> iterator = inventory.iterator();
-		for(;iterator.hasNext();)
-		{
+		for(;iterator.hasNext();) {
 			temp = iterator.next();
-			if(temp.getName().equalsIgnoreCase(name))
-			{
-				ret_item = temp;
+			if(temp.getName().equalsIgnoreCase(name)) {
+				item_reference = temp;
 				break;
 			}
 		}
-		return ret_item;
+		return item_reference;
 	}
 	
 	/**
 	 * Deletes an item from your inventory.
 	 * @param id: is the unique id of the item you wish to delete.
 	 */
-	public void deleteItem(int id) 
-	{
+	public void deleteItem(int id) {
 		Iterator<Item> iterator = inventory.iterator();
 		int temp;
 		Item obj;
-		for(;iterator.hasNext();) 
-		{
+		for(;iterator.hasNext();) {
 			obj = iterator.next();
 			temp = obj.getID();
-			if(temp == id) 
-			{
+			if(temp == id) {
 				iterator.remove();
 				break;
 			}
 		}
 	}
 	
-	private void equip(String arg) 
-	{
-		Item temp_item = itemReference(arg);
-		if(temp_item != null) 
-		{
-			if(temp_item instanceof Equipment) 
-			{
+	private void equip(String arg) {
+		Item temp_item = getItemReference(arg);
+		if(temp_item != null) {
+			if(temp_item instanceof Equipment) {
 					Equipment temp_eq = (Equipment) temp_item;
-				if(temp_eq instanceof Helmet) 
-				{
-					if(helmet != null) 
-					{
-						if(helmet.getLevel() <= temp_eq.getLevel()) 
-						{
+				if(temp_eq instanceof Helmet) {
+					if(helmet != null) {
+						if(helmet.getLevel() <= temp_eq.getLevel()) {
 							helmet = (Helmet) temp_eq;
 							System.out.println("You've equipped a new helmet");
-						} 
-						else 
-						{
+						} else {
 							System.out.println("Current equipment is higher level");
 						}
-					} 
-					else 
-					{
+					} else {
 						helmet = (Helmet) temp_eq;
 						System.out.println("You've equipped a new helmet");
 					}
 					
 				}
-				if(temp_eq instanceof Armor) 
-				{
-					if(armor != null) 
-					{
-						if(armor.getLevel() <= temp_eq.getLevel()) 
-						{
+				if(temp_eq instanceof Armor) {
+					if(armor != null) {
+						if(armor.getLevel() <= temp_eq.getLevel()) {
 							armor = (Armor) temp_eq;
 							System.out.println("You've equipped a new armor");
-						} 
-						else
-						{
+						} else {
 						System.out.println("Current equipment is higher level");
 						}
-					} 
-					else 
-					{
+					} else {
 						armor = (Armor) temp_eq;
 						System.out.println("You've equipped a new armor");
 					}
 					
-				}
-				if(temp_eq instanceof Weapon) 
-				{
-					if(weapon != null) 
-					{
-						if(weapon.getLevel() <= temp_eq.getLevel()) 
-						{
+				} if(temp_eq instanceof Weapon) {
+					if(weapon != null) {
+						if(weapon.getLevel() <= temp_eq.getLevel()) {
 							weapon = (Weapon) temp_eq;
 							System.out.println("You've equipped a new weapon");
-						} 
-						else 
-						{
+						} else {
 							System.out.println("Current equipment is higher level");
 						}
-					}
-					else
-					{
+					} else {
 						weapon = (Weapon) temp_eq;
 						System.out.println("You've equipped a new weapon");
 					}
 					
 				}
-				deleteItem(itemReference(arg).getID());
-			} 
-			else 
-			{
+				deleteItem(getItemReference(arg).getID());
+			} else {
 				System.out.print(arg+" is of the wrong type");
 			}
-		} 
-		else 
-		{
+		} else {
 			System.out.print("You don't have "+arg+" in your inventory");
 		}
 		
 	}
 	
 	
-	private void fight()
-	{
-		int dmg = (int)(12*(1.0+xp/150.0)*(Math.random()+1));
-		if(weapon != null) dmg += weapon.getDMG_mod();
-		try 
-		{
-			TimeUnit.MILLISECONDS.sleep(300);
-			world.dealDMG(we, ns, dmg);
-			System.out.print("You strike the monster");
-			if(weapon != null) 
-			{
-				System.out.print(" with your sword");
-			}		
-			System.out.println(" and deal "+dmg+" damage");
-			TimeUnit.MILLISECONDS.sleep(700);
-		} 
-		catch (InterruptedException e)
-		{
-
-			e.printStackTrace();
+	private void fight() {
+		int damage = (int)(12*(1.0+xp/150.0)*(Math.random()+1));
+		if(weapon != null) damage += weapon.getDMG_mod(); {
+			try {
+				TimeUnit.MILLISECONDS.sleep(300);
+				world.dealDMG(we, ns, damage);
+				System.out.print("You strike the monster");
+				if(weapon != null) {
+					System.out.print(" with your sword");
+				}		
+				System.out.println(" and deal "+damage+" damage");
+				TimeUnit.MILLISECONDS.sleep(700);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		if(world.isDead(we,ns))
-		{
+		if(world.isDead(we,ns)) {
 			int inc_xp = (10 * world.getLevel(we,ns));
 			xp += inc_xp;
 			Item[] loot = concatenate(
@@ -585,83 +487,66 @@ public class Player {
 			System.out.println("+"+inc_xp+"xp");
 			world.lookLoot(we, ns,loot);
 			world.setDead(we,ns);
-		}
-		else 
-		{
-			dmg = world.getDMG(we, ns);
-			if(helmet != null) dmg -= helmet.getDMG_mod();
-			if(armor != null) dmg -= armor.getDMG_mod();
-			System.out.println("The monster strikes back and deals you "+dmg);
-			hp -= dmg;
+		} else {
+			damage = world.getDMG(we, ns);
+			if(helmet != null) damage -= helmet.getDMG_mod();
+			if(armor != null) damage -= armor.getDMG_mod();
+			System.out.println("The monster strikes back and deals you "+damage);
+			hp -= damage;
 		}
 	}
 	
 	//delete meat when you leave the room.
-	private void escape(String arg)
-	{
+	private void escape(String arg) {
 		int status_flag;
-		if(world.itemExist(we, ns, "Meat"))
-		{
+		if(world.itemExist(we, ns, "Meat")) {
 			System.out.println("You've distracted the monster with meat");
-			switch(arg)
-			{
+			switch(arg) {
 			case "n":
 			case "north":
 				status_flag = world.enter(we,wrap(ns+1));
-				if(status_flag != 0) 
-				{
+				if(status_flag != 0) {
 					world.deleteItem(we, ns, world.getID(we,ns,"Meat"));
 					ns = wrap(ns+1);
 					System.out.println("You've escaped!");
 					in_combat = false;
-				} 
-				else 
-				{
+				} else {
 					System.out.println("You can't go north!");
 				}
 				break;
 			case "s":
 			case "south":
 				status_flag = world.enter(we,wrap(ns-1));
-				if(status_flag != 0)
-				{
+				if(status_flag != 0) {
 					world.deleteItem(we, ns, world.getID(we,ns,"Meat"));
 					ns = wrap(ns-1);
 					System.out.println("You've escaped!");
 					in_combat = false;
-				}
-				else
-				{
+				} else {
 					System.out.println("You can't go south!");
 				}
 				break;
 			case "w":
 			case "west":
 				status_flag = world.enter(wrap(we-1),ns);
-				if(status_flag != 0)
-				{
+				if(status_flag != 0) {
 					world.deleteItem(we, ns, world.getID(we,ns,"Meat"));
 					we = wrap(we-1);
 					System.out.println("You've escaped!");
 					in_combat = false;
-				}
-				else
-				{
+				} else {
 					System.out.println("You can't go west!");
 				}
 				break;
 			case "e":
 			case "east":
 				status_flag = world.enter(wrap(we+1),ns);
-				if(status_flag != 0)
-				{
+				if(status_flag != 0) {
 					world.deleteItem(we, ns, world.getID(we,ns,"Meat"));
 					we = wrap(we+1);
 					System.out.println("You've escaped!");
 					in_combat = false;
-				} 
-				else 
-				{
+				} else {
 					System.out.println("You can't go east!");
 				}
 				break;
@@ -670,8 +555,7 @@ public class Player {
 					break;
 			}
 		} 
-		else
-		{
+		else {
 			int dmg;
 			dmg = world.getDMG(we, ns);
 			System.out.println("The monster prevents your escape and you take "+dmg+" damage!");
@@ -683,8 +567,7 @@ public class Player {
 	/**
 	 * Prints possible commands,
 	 */
-	private void help()
-	{
+	private void help() {
 		System.out.println(""
 				+ "Here is a description of the commands used to navigate this game\n"
 				+ "Navigate the world by using the n (north), s (south), w (west), e (east).\n"
@@ -724,8 +607,7 @@ public class Player {
 				);
 	}
 
-	private void helpCombat()
-	{
+	private void helpCombat() {
 		System.out.println(""
 				+ "Here is a description of the commands used to navigate this game\n"
 				+ "You cannot just leave a room while in combat.\n"
@@ -769,38 +651,32 @@ public class Player {
 				);
 	}
 	
-	private void stats()
-	{
+	private void stats() {
 		System.out.println(""
 				+"HP:     "+hp+"\n"
 				+"Max HP: "+hp_max+"\n"
 				+"XP:     "+xp+"\n"
-				+"Helmet: "+equipmentStats(helmet)+"\n"
-				+"Armor:  "+equipmentStats(armor)+"\n"
-				+"Weapon: "+equipmentStats(weapon)+"\n"
+				+"Helmet: "+buildEquipmentStats(helmet)+"\n"
+				+"Armor:  "+buildEquipmentStats(armor)+"\n"
+				+"Weapon: "+buildEquipmentStats(weapon)+"\n"
 				+"Rooms explored: "+Room.getVisited()
 				);
 	}
 	
 	//Simplify this later when you can see if it works
-	private String equipmentStats(Equipment eq)
-	{
-		String ret_value = "";
-		if(eq != null)
-		{
-			ret_value = ret_value.concat(eq.getName());
-			ret_value = ret_value.concat(" level:");
-			ret_value = ret_value.concat(Integer.toString(eq.getLevel()));
-			ret_value = ret_value.concat("     bonus:");
-			ret_value = ret_value.concat(Integer.toString(eq.getDMG_mod()));
+	private String buildEquipmentStats(Equipment eq) {
+		String result = "";
+		if(eq != null) {
+			result = result.concat(eq.getName());
+			result = result.concat(" level:");
+			result = result.concat(Integer.toString(eq.getLevel()));
+			result = result.concat("     bonus:");
+			result = result.concat(Integer.toString(eq.getDMG_mod()));
 			
+		} else {
+			result = result.concat("none");
 		}
-		else
-		{
-			ret_value = ret_value.concat("none");
-		}
-
-		return ret_value;
+		return result;
 	}
 	
 	/**
@@ -808,23 +684,19 @@ public class Player {
 	 * @param coordinate: the coordinate call which you're 
 	 * @return coordinate wrapped if coordinate is bigger than MAPSIZE or smaller than 0.
 	 */
-	private int wrap(int coordinate) 
-	{
+	private int wrap(int coordinate) {
 		if(coordinate >= MAPSIZE) coordinate -= MAPSIZE;
 		if(coordinate < 0) coordinate += MAPSIZE;
 		return coordinate;
 	}
 	
 	//Borrowed this code. 
-	private <T> T[] concatenate(T[] arr1, T[] arr2)
-	{
+	private <T> T[] concatenate(T[] arr1, T[] arr2) {
 		@SuppressWarnings("unchecked")
 		T[] arr3 = (T[]) Array.newInstance(arr1.getClass().getComponentType(), arr1.length + arr2.length);
 		System.arraycopy(arr1, 0, arr3, 0, arr1.length);
 		System.arraycopy(arr2, 0, arr3, arr1.length, arr2.length);
 		return arr3;
 	}
-	
-
-	
+		
 }

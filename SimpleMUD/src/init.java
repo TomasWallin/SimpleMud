@@ -3,12 +3,12 @@ import java.io.IOException;
 public class init {
 
 	private static final int MAPSIZE = 64;
+	//Rate is a percentage of 0-99
 	private static final int ITEM_SPAWN_RATE = 18;
 	private static final int CHEST_SPAWN_RATE = 13;
 	private static final int MONSTER_SPAWN_RATE = 16;
 	
-	public static void main(String[] args) throws IOException
-	{
+	public static void main(String[] args) throws IOException{
 		
 		//Init objects
 		World world = new World(MAPSIZE,MAPSIZE,ITEM_SPAWN_RATE, CHEST_SPAWN_RATE, MONSTER_SPAWN_RATE);
